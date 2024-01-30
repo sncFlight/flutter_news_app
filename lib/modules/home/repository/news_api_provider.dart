@@ -2,32 +2,42 @@ import 'dart:async';
 import 'package:http/http.dart' show Client;
 import 'dart:convert';
 import 'package:news_application/models/article.dart';
-import 'package:uuid/uuid.dart';
 
 class NewsApiProvider {
-  Client client = Client();
+  final Client client = Client();
+  final String _apiKey = 'd21b654241a14be090cd32210c8e91f9';
 
-  String cntry = 'us';
+  Future<List<Article>> fetchLatestNews(int pageIndex) async {
+    final Uri url = Uri.parse("https://newsapi.org/v2/top-headlines?page=$pageIndex&pageSize=20&category=science&language=en&apiKey=$_apiKey");
 
-  final _apiKey = '53ea041b1e1c4c659b41767532da63f2';
+    try {
+      final response = await client.get(url);
+        List<Article> articles = [];
+        
+        json.decode(response.body)['articles'].forEach((v) {
+          articles.add(Article.fromJson(v));
+        });
 
-  // Chech shared preference, push requset to newsapi.org server and parse to model
-  Future<List<Article>> fetchNewsList() async {
+        return articles;
+      } catch (e) {
+        rethrow;
+      }
+  }
 
-    Uri url =
-        Uri.parse("https://newsapi.org/v2/top-headlines?country=ru&apiKey=$_apiKey");
+  Future<List<Article>> fetchFeaturedNews() async {
+    const String featureTopic = 'space';
+    final Uri url = Uri.parse("https://newsapi.org/v2/top-headlines?q=$featureTopic&pageSize=5&language=en&apiKey=$_apiKey");
 
-    final response = await client.get(url);
-    if (response.statusCode == 200) {
+    try {
+      final response = await client.get(url);
       List<Article> articles = [];
       
       json.decode(response.body)['articles'].forEach((v) {
         articles.add(Article.fromJson(v));
       });
-
       return articles;
-    } else {
-      throw Exception("Faild to post!");
+    } catch (e) {
+      rethrow;
     }
   }
 }
