@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:news_application/constants/palette.dart';
+import 'package:news_application/constants/text_styles.dart';
 import 'package:news_application/models/article.dart';
 import 'package:news_application/widgets/custom_image.dart';
 
@@ -13,66 +14,43 @@ class DetailsForm extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+    final String formattedPublishedAt = article.publishedAt.replaceAll(RegExp('[TZ]'), ' ');
+
     return Scaffold(
-      backgroundColor: Palette.appBackgroundLight,
+      backgroundColor: Palette.appBackground,
       appBar: AppBar(
-        actions: const [
-          Icon(Icons.share),
-        ],
         automaticallyImplyLeading: true,
-        title: SizedBox(child: Text(article.title)),
+        title: Text(article.title),
       ),
       body: SafeArea(
-        child: ListView(
-          children: [
-            Stack(
-              alignment: Alignment.topRight,
-              children: [
-                CustomImage(imageUrl: article.imageUrl),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  article.title,
-                  maxLines: 5,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      overflow: TextOverflow.ellipsis,
-                      fontWeight: FontWeight.w400),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            vertical: 16,
+            horizontal: 16,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 300,
+                child: CustomImage(
+                  imageUrl: article.imageUrl,
                 ),
-                Divider(
-                  color: Colors.black,
-                ),
-                Text(
-                  article.description,
-                  maxLines: 50,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                Divider(
-                  color: Colors.black,
-                ),
-                Text(
-                  article.content,
-                  maxLines: 50,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w300,
-                  ),
-                ),
-                Divider(
-                  color: Colors.black,
-                ),
-                Text(
-                  article.publishedAt,
-                  style: const TextStyle(fontWeight: FontWeight.w300),
-                ),
-              ],
-            ),
-            const Text('Go To The Source'),
-          ],
+              ),
+              Text(
+                article.title,
+                style: TextStyles.mainHeader(),
+              ),
+              Text(
+                formattedPublishedAt,
+                style: TextStyles.notation(),
+              ),
+              Text(
+                article.content * 1,
+                style: TextStyles.common(),
+              )
+            ],
+          ),
         ),
       )
     );

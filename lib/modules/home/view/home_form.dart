@@ -1,122 +1,226 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_application/constants/palette.dart';
+import 'package:news_application/constants/text_styles.dart';
+import 'package:news_application/models/article_with_read_status.dart';
+import 'package:news_application/modules/details/view/details_page.dart';
 import 'package:news_application/widgets/carousel_article_tile.dart';
-import 'package:timeago/timeago.dart' as timeago;
+import 'package:news_application/widgets/home_shimmer.dart';
 
 import '../bloc/bloc.dart';
 import '../../../widgets/list_article_tile.dart';
 import '../../../models/article.dart';
 
-class HomeForm extends StatelessWidget {
+class HomeForm extends StatefulWidget {
+  const HomeForm({super.key});
+
   @override
-  Widget build(BuildContext context) {
+  State<HomeForm> createState() => _HomeFormState();
+}
+
+class _HomeFormState extends State<HomeForm> {
+  CarouselController? _carouselController;
+  int carouselImagePosition = 0;
+
+  @override
+  void initState() {
+    _carouselController = CarouselController();
+
+    super.initState();
+  }
+
+  @override
+  Widget build(_) {
     return Scaffold(
-      backgroundColor: Palette.appBackgroundLight,
+      backgroundColor: Palette.appBackground,
       appBar: AppBar(
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 15),
+            child: BlocBuilder<HomeBloc, HomeState>(
+              builder: (context, state) {
+                return GestureDetector(
+                  onTap: () => BlocProvider.of<HomeBloc>(context).add(MarkAllReadClickedEvent()),
+                  child: Icon(
+                    Icons.done_all,
+                    color: (state.allNewsRead) 
+                      ? Colors.grey
+                      : Colors.blueAccent,
+                  ),
+                );
+              }
+            )
+          ),
+        ],
+        title: Text(
+          'Science News',
+          style: TextStyles.title(),
+        ),
+        backgroundColor: Palette.appBarBackground,
         centerTitle: true,
-        title: const Text('News'),
+        surfaceTintColor: Colors.transparent,
+        automaticallyImplyLeading: false,
       ),
       body: SafeArea(
-        child: BlocBuilder<HomeBloc, HomeState>(
-          builder: (context, state) {
-            if (state is HomeInitialState) {
-              context.read<HomeBloc>().add(GetArticlesEvent());
-            } else if (state is NewsLoadingState) {
-              return Center(
-                child: CircularProgressIndicator(
-                  color: Colors.green,
+        child: BlocConsumer<HomeBloc, HomeState>(
+          listener: (context, state) {
+            if (state.status == HomeStatus.failure) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Failed to retrieve data'),
                 ),
               );
-            } else if (state is HomeSuccessState) {
-              return buildSuccessState(state.articles, context);
-            } else if (state is HomeErrorState) {
-              return buildErrorState(context);
             }
-            return const Center(child: Text('Something Else Happened!'));
           },
+          builder: (context, state) {
+            return (state.status == HomeStatus.initial)
+              ? _buildShimmer()
+              : _buildBodyWidget(
+                  context: context,
+                  featuredNews: state.featuredNews,
+                  latestNews: state.latestNews,
+                  state: state,
+                );
+          }
+        ),
+      )
+    );
+  }
+
+  Widget _buildShimmer() {
+    return const HomeShimmer();
+  }
+
+  Widget _buildBodyWidget({
+    required List<ArticleWithStatus> latestNews,
+    required List<Article> featuredNews,
+    required BuildContext context,
+    required HomeState state,
+ }) {
+    return RefreshIndicator(
+      onRefresh: () async {
+        BlocProvider.of<HomeBloc>(context).add(UpdateDataFetchedEvent());
+      },
+      child: NotificationListener<ScrollEndNotification>(
+        onNotification: (scrollInfo) {
+          if (scrollInfo.metrics.pixels == scrollInfo.metrics.maxScrollExtent && state.status == HomeStatus.newsLoaded) {
+            BlocProvider.of<HomeBloc>(context).add(LoadMoreFetchedEvent());
+          }
+          return true;
+        },
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              if (featuredNews.isNotEmpty)
+                _buildCarousel(featuredNews),
+              const Padding(padding: EdgeInsets.only(top: 20)),
+              if (latestNews.isNotEmpty)
+                _buildList(latestNews),
+              const Padding(padding: EdgeInsets.only(bottom: 15)),
+              if (state.status == HomeStatus.loadingMoreLatestNews)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 15),
+                  child: _buildLoadingMoreWidget(),
+                ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget buildSuccessState(List<Article> articles, BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        BlocProvider.of<HomeBloc>(context).add(GetArticlesEvent());
-      },
-      child: Column(
-        children: [
-          buildCarousel(articles),
-          const Padding(padding: EdgeInsets.only(top: 0),),
-          Expanded(child: buildArticles(articles)),
-        ],
-      ),
-    );
-  }
-
-  Widget buildErrorState(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: () async {
-        BlocProvider.of<HomeBloc>(context).add(GetArticlesEvent());
-      },
-      child: Center(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildCarousel(List<Article> featuredNews) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Text(
+            'Latest News',
+            style: TextStyles.mainHeader(),
+          ),
+        ),
+        Column(
           children: [
-            Icon(Icons.error_outline),
-            Text("Connection Error! Please try again."),
+            CarouselSlider.builder(
+              options: CarouselOptions(
+                aspectRatio: 16 / 9,
+                enlargeCenterPage: true,
+                enlargeFactor: 0.2,
+                onPageChanged: (int index, CarouselPageChangedReason reason) {
+                  setState(() {
+                    carouselImagePosition = index;
+                  });
+                },
+              ),
+              itemCount: featuredNews.length,
+              itemBuilder: (BuildContext context, int index, int realIndex) {
+                return CarouselArticleTile(article: featuredNews[index]);
+              },
+            ),
+            DotsIndicator(
+              dotsCount: featuredNews.length,
+              position: carouselImagePosition,
+              onTap: (position) {
+                _carouselController?.animateToPage(position);
+              },
+              decorator: DotsDecorator(
+                color: Colors.grey,
+                activeColor: Colors.blue,
+                size: const Size.square(12.0),
+                activeSize: const Size(24.0, 12.0),
+                activeShape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                )
+              ),
+            )
           ],
         ),
-      ),
+      ],
     );
   }
 
-  Widget buildCarousel(List<Article> articles) {
-    return CarouselSlider.builder(
-      options: CarouselOptions(
-        enlargeCenterPage: true,
-        enlargeFactor: 0,
-      ),
-      itemCount: articles.length,
-      itemBuilder: (context, index, realIndex) {
-        DateTime parsedDate = DateTime.parse(articles[index].publishedAt);
-        String timeAgo = timeago.format(parsedDate, locale: 'en_short');
-
-        return CarouselArticleTile(article: articles[index]);
-      },
-    );
-  }
-
-  Widget buildArticles(List<Article> articles) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 12),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(10),
-            topRight: Radius.circular(10),
+  Widget _buildList(List<ArticleWithStatus> latestNews) {
+    return BlocBuilder<HomeBloc, HomeState>(
+      builder: (context, state) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Latest news',
+                style: TextStyles.mainHeader(),
+              ),
+              const Padding(padding: EdgeInsets.only(top: 0)),
+              Column(
+                children: [
+                  ListView.separated(
+                    itemCount: latestNews.length,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemBuilder: ((BuildContext context, int index) {
+                      return GestureDetector(
+                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => DetailsPage(article: latestNews[index].article))),
+                        child: ListArticleWithStatusTile(articleWithStatus: latestNews[index]),
+                      );
+                    }),
+                    separatorBuilder: (BuildContext context, int index) {
+                      return const Padding(padding: EdgeInsets.only(top: 18));
+                    },
+                  ),
+                ],
+              ),
+            ],
           ),
-          color: Colors.black.withOpacity(0.5),
-        ),
-        child: ListView.separated(
-          itemCount: articles.length,
-          itemBuilder: ((context, index) {
-            DateTime parsedDate = DateTime.parse(articles[index].publishedAt);
-            String timeAgo = timeago.format(parsedDate, locale: 'en_short');
-
-            return ListArticleTile(article: articles[index]);
-          }),
-          separatorBuilder: (BuildContext context, int index) {
-            return Divider(
-              height: 2,
-              color: Colors.grey,
-            );
-          },
-        ),
-      ),
+        );
+      }
     );
+  }
+  
+  Widget _buildLoadingMoreWidget() {
+    return const CircularProgressIndicator();
   }
 }

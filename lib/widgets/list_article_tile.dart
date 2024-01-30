@@ -1,52 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:news_application/constants/palette.dart';
 import 'package:news_application/constants/text_styles.dart';
-import 'package:news_application/models/article.dart';
+import 'package:news_application/helpers/functions.dart';
+import 'package:news_application/models/article_with_read_status.dart';
 import 'package:news_application/widgets/custom_Image.dart';
 
-class ListArticleTile extends StatelessWidget {
-  final Article article;
+class ListArticleWithStatusTile extends StatelessWidget {
+  final ArticleWithStatus articleWithStatus;
 
-  const ListArticleTile({
+  const ListArticleWithStatusTile({
     Key? key,
-    required this.article,
+    required this.articleWithStatus,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(15.0),
+    String timeAgo = formatElapsedTime(articleWithStatus.article.publishedAt);
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.all(Radius.circular(8)),
+        color: articleWithStatus.isRead 
+          ? Palette.articleReadTile
+          : Palette.articleNotReadTile,
+      ),
       child: Row(
         children: [
-          Container(
-            width: 50,
-            height: 50,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: CustomImage(imageUrl: article.imageUrl),
-            ),
+          SizedBox(
+            width: 100,
+            height: 100,
+            child: CustomImage(imageUrl: articleWithStatus.article.imageUrl),
           ),
-          const Padding(padding: EdgeInsets.only(left: 20)),
-          Expanded(
-            child: Column(
-              children: [
-                Text(
-                  article.title,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyles.description(color: Colors.white)
-                ),
-                const SizedBox(height: 8.0),
-                Text(
-                  article.publishedAt,
-                  style: TextStyle(
-                    fontSize: 14.0,
-                    fontStyle: FontStyle.italic,
-                    color: Colors.grey[500],
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Expanded(
+              child: Column(
+                children: [
+                  Text(
+                    articleWithStatus.article.title,
+                    style: TextStyles.common()
                   ),
-                ),
-              ],
+                  const Padding(padding: EdgeInsets.only(top: 8)),
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      timeAgo,
+                      style: TextStyle(
+                        fontSize: 14.0,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],

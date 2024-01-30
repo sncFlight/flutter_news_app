@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 class CustomImage extends StatelessWidget {
   final String imageUrl;
   final double radius;
+  final bool canShowPlaceholder;
 
   const CustomImage({
-    Key? key,
     required this.imageUrl,
-    this.radius = 20,
-  }) : super(key: key);
+    this.canShowPlaceholder = true,
+    this.radius = 8,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +36,18 @@ class CustomImage extends StatelessWidget {
             }
           },
           errorBuilder: (BuildContext context, Object error, StackTrace? stackTrace) {
-            return Image.asset(
-              'assets/images/placeholder.png',
-            );
+            return canShowPlaceholder
+              ? Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey.withOpacity(0.5),
+                  ),
+                  child: Image.asset(
+                    'assets/images/placeholder.png',
+                  ),
+                )
+              : Container(
+                color: Colors.black,
+              );
           },
         ),
       ),

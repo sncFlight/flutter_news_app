@@ -17,23 +17,20 @@ class CarouselArticleTile extends StatelessWidget {
       padding: const EdgeInsets.all(15.0),
       child: Stack(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-            ),
-            child: CustomImage(imageUrl: article.imageUrl),
+          CustomImage(
+            imageUrl: article.imageUrl,
+            canShowPlaceholder: false,
+            radius: 16,
           ),
           Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 20,
-            ),
+            padding: const EdgeInsets.all(12),
             child: Align(
               alignment: Alignment.bottomCenter,
               child: Text(
                 article.title,
-                style: TextStyles.description(
-                  color: Colors.white,
-                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyles.carouselTextStyle(),
               ),
             ),
           ),
