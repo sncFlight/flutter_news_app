@@ -5,6 +5,12 @@ class HomeEvent extends Equatable {
   List<Object?> get props => throw UnimplementedError();
 }
 
-class GetArticlesEvent extends HomeEvent {}
+class PageOpenedEvent extends HomeEvent {}
+
+class UpdateDataFetchedEvent extends HomeEvent {}
+
+class MarkAllReadClickedEvent extends HomeEvent {}
+
+class LoadMoreFetchedEvent extends HomeEvent {}
 
 class ArticleClickedEvent extends HomeEvent {}
