@@ -6,30 +6,52 @@ class TextStyles {
     Color? color = Colors.grey,
     double fontSize = 12,
   }) {
-    return GoogleFonts.notoSans(
+    return GoogleFonts.roboto(
       fontSize: fontSize,
       color: color,
     );
   }
 
-  static TextStyle header({
-    Color? color = Colors.grey,
-    double fontSize = 16,
+  static TextStyle title({
+    Color? color = Colors.white,
+    double fontSize = 25,
   }) {
-    return GoogleFonts.notoSans(
+    return GoogleFonts.fugazOne(
       fontSize: fontSize,
       fontWeight: FontWeight.w700,
       color: color,
     );
   }
 
+  static TextStyle mainHeader({
+    Color? color = Colors.black,
+    double fontSize = 18,
+  }) {
+    return GoogleFonts.fugazOne(
+      fontSize: fontSize,
+      fontWeight: FontWeight.w600,
+      color: color,
+    );
+  }
+
   static TextStyle common({
-    Color? color = Colors.white,
+    Color? color = Colors.black,
     double fontSize = 12,
   }) {
-    return GoogleFonts.notoSans(
+    return GoogleFonts.roboto(
       fontSize: fontSize,
       color: color,
+    );
+  }
+
+  static TextStyle carouselTextStyle({
+    Color? color = Colors.white,
+    double fontSize = 14,
+  }) {
+    return GoogleFonts.roboto(
+      fontSize: fontSize,
+      color: color,
+      fontWeight: FontWeight.w500,
     );
   }
 }
