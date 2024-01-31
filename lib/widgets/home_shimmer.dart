@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:news_application/constants/palette.dart';
+
 import 'package:shimmer/shimmer.dart';
+
+import 'package:news_application/constants/palette.dart';
 
 class HomeShimmer extends StatelessWidget {
   const HomeShimmer({super.key});
@@ -9,24 +11,30 @@ class HomeShimmer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25),
-      child: Column(
-        children: [
-          Shimmer.fromColors(
-            baseColor: Palette.shimmer,
-            highlightColor: Colors.grey[100]!,
-            child: Container(
-              height: 200,
-              width: double.infinity,
-              color: Palette.shimmer,
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            const SizedBox(height: 16),
+            Shimmer.fromColors(
+              baseColor: Palette.shimmer,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                height: 200,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Palette.shimmer,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: Shimmer.fromColors(
+            const SizedBox(height: 30),
+            Shimmer.fromColors(
               baseColor: Palette.shimmer,
               highlightColor: Colors.grey[100]!,
               child: ListView.separated(
                 itemCount: 20,
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
                 itemBuilder: (context, index) {
                   return _buildArticleShimmer();
                 },
@@ -35,8 +43,8 @@ class HomeShimmer extends StatelessWidget {
                 },
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -53,9 +61,9 @@ class HomeShimmer extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 16),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 14),
-          child: Expanded(
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -67,13 +75,19 @@ class HomeShimmer extends StatelessWidget {
                 const SizedBox(height: 8),
                 Container(
                   height: 16,
-                  width: 150,
+                  width:  double.infinity,
                   color: Palette.shimmer,
                 ),
                 const SizedBox(height: 8),
                 Container(
                   height: 16,
-                  width: 100,
+                  width: double.infinity,
+                  color: Palette.shimmer,
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  height: 16,
+                  width: 75,
                   color: Palette.shimmer,
                 ),
               ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:news_application/modules/splash/view/splash_page.dart';
+
 import 'modules/home/bloc/bloc.dart';
 import 'modules/home/view/home_form.dart';
 
@@ -14,16 +15,14 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'News App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.green,
       ),
       home: BlocProvider(
-        create: (context) => HomeBloc(),
-        child: HomeForm(),
+        create: (context) => HomeBloc()..add(PageOpenedEvent()),
+        child: const HomeForm(),
       ),
-      onGenerateRoute: (_) => SplashPage.route(),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import 'package:news_application/models/article.dart';
 import 'package:news_application/models/article_with_read_status.dart';
 

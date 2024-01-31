@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:news_application/constants/palette.dart';
 import 'package:news_application/constants/text_styles.dart';
 import 'package:news_application/models/article.dart';
@@ -8,9 +9,9 @@ class DetailsForm extends StatelessWidget{
   final Article article;
 
   const DetailsForm({
-    Key? key,
+    super.key, 
     required this.article,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

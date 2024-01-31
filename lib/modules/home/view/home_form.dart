@@ -1,17 +1,18 @@
+import 'package:flutter/material.dart';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dots_indicator/dots_indicator.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:news_application/constants/palette.dart';
 import 'package:news_application/constants/text_styles.dart';
+import 'package:news_application/models/article.dart';
 import 'package:news_application/models/article_with_read_status.dart';
 import 'package:news_application/modules/details/view/details_page.dart';
+import 'package:news_application/modules/home/bloc/bloc.dart';
 import 'package:news_application/widgets/carousel_article_tile.dart';
 import 'package:news_application/widgets/home_shimmer.dart';
-
-import '../bloc/bloc.dart';
-import '../../../widgets/list_article_tile.dart';
-import '../../../models/article.dart';
+import 'package:news_application/widgets/list_article_tile.dart';
 
 class HomeForm extends StatefulWidget {
   const HomeForm({super.key});
@@ -114,10 +115,16 @@ class _HomeFormState extends State<HomeForm> {
           child: Column(
             children: [
               if (featuredNews.isNotEmpty)
-                _buildCarousel(featuredNews),
-              const Padding(padding: EdgeInsets.only(top: 20)),
+                Padding(
+                  padding: const EdgeInsets.only(top: 16),
+                  child: _buildCarousel(featuredNews),
+                ),
+              const Padding(padding: EdgeInsets.only(top: 30)),
               if (latestNews.isNotEmpty)
-                _buildList(latestNews),
+                _buildList(
+                  latestNews: latestNews,
+                  state: state,
+                ),
               const Padding(padding: EdgeInsets.only(bottom: 15)),
               if (state.status == HomeStatus.loadingMoreLatestNews)
                 Padding(
@@ -182,7 +189,10 @@ class _HomeFormState extends State<HomeForm> {
     );
   }
 
-  Widget _buildList(List<ArticleWithStatus> latestNews) {
+  Widget _buildList({
+    required List<ArticleWithStatus> latestNews,
+    required HomeState state,
+  }) {
     return BlocBuilder<HomeBloc, HomeState>(
       builder: (context, state) {
         return Padding(
@@ -195,23 +205,19 @@ class _HomeFormState extends State<HomeForm> {
                 style: TextStyles.mainHeader(),
               ),
               const Padding(padding: EdgeInsets.only(top: 0)),
-              Column(
-                children: [
-                  ListView.separated(
-                    itemCount: latestNews.length,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemBuilder: ((BuildContext context, int index) {
-                      return GestureDetector(
-                        onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => DetailsPage(article: latestNews[index].article))),
-                        child: ListArticleWithStatusTile(articleWithStatus: latestNews[index]),
-                      );
-                    }),
-                    separatorBuilder: (BuildContext context, int index) {
-                      return const Padding(padding: EdgeInsets.only(top: 18));
-                    },
-                  ),
-                ],
+              ListView.separated(
+                itemCount: latestNews.length,
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: ((BuildContext context, int index) {
+                  return GestureDetector(
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => DetailsPage(article: latestNews[index].article))),
+                    child: ListArticleWithStatusTile(articleWithStatus: latestNews[index]),
+                  );
+                }),
+                separatorBuilder: (BuildContext context, int index) {
+                  return const Padding(padding: EdgeInsets.only(top: 18));
+                },
               ),
             ],
           ),

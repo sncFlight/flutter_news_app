@@ -7,10 +7,10 @@ import 'package:news_application/models/article.dart';
 import 'package:news_application/modules/home/repository/home_repository.dart';
 
 class HomeBloc extends Bloc<HomeEvent, HomeState> {
-  RealRepository? homeRepository;
+  MockRepository? homeRepository;
 
   HomeBloc() : super(const HomeState()) {
-    homeRepository = RealRepository();
+    homeRepository = MockRepository();
 
     on<PageOpenedEvent>(_onPageOpened);
     on<MarkAllReadClickedEvent>(_onMarkAllReadClicked);
@@ -127,7 +127,7 @@ class HomeBloc extends Bloc<HomeEvent, HomeState> {
     bool allNewsRead = state.allNewsRead;
 
     try {
-      final List<Article> news = (await homeRepository?.getLatestNews(state.pageIndex) ?? []);
+      final List<Article> news = await homeRepository?.getLatestNews(state.pageIndex) ?? [];
       final List<ArticleWithStatus> newsWithStatus = [];
       
       for (Article article in news) {

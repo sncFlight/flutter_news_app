@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:news_application/constants/palette.dart';
 import 'package:news_application/constants/text_styles.dart';
 import 'package:news_application/helpers/functions.dart';
@@ -9,9 +10,9 @@ class ListArticleWithStatusTile extends StatelessWidget {
   final ArticleWithStatus articleWithStatus;
 
   const ListArticleWithStatusTile({
-    Key? key,
+    super.key,
     required this.articleWithStatus,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +20,8 @@ class ListArticleWithStatusTile extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(8)),
-        color: articleWithStatus.isRead 
+        borderRadius: BorderRadius.circular(12),
+        color: articleWithStatus.isRead
           ? Palette.articleReadTile
           : Palette.articleNotReadTile,
       ),
@@ -35,20 +36,25 @@ class ListArticleWithStatusTile extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 14),
             child: Expanded(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(
-                    articleWithStatus.article.title,
-                    style: TextStyles.common()
+                  SizedBox(
+                    width: 200,
+                    child: Text(
+                      articleWithStatus.article.title,
+                      style: TextStyles.common()
+                    ),
                   ),
-                  const Padding(padding: EdgeInsets.only(top: 8)),
+                  const SizedBox(height: 8.0),
                   Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: Alignment.bottomLeft,
                     child: Text(
                       timeAgo,
                       style: TextStyle(
                         fontSize: 14.0,
                         fontStyle: FontStyle.italic,
-                        color: Colors.grey[600],
+                        color: Colors.grey.shade600,
                       ),
                     ),
                   ),
